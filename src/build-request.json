@@ -1,0 +1,127 @@
+{
+  "kind": "build_request",
+  "title": "Make Contact form public and add legal document upload to Company survey submissions",
+  "priority": "normal",
+  "requirements": [
+    {
+      "id": "REQ-7",
+      "text": "Remove authentication gating from the Contact page so that unauthenticated visitors, student accounts, and company accounts can all submit the contact form at /contact without logging in.",
+      "target": "both",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "Can you make it so that the contact page is unlocked for all users, including those that aren't logged in? And for the Company accounts."
+        ]
+      },
+      "acceptanceCriteria": [
+        "When not logged in, visiting /contact shows the contact form (no login-required prompt) and the user can submit successfully.",
+        "When logged in as a student or company account, the same /contact form is available and submits successfully.",
+        "Backend no longer traps with \"Unauthorized: Please log in to submit a contact form\" for anonymous callers submitting contact forms."
+      ]
+    },
+    {
+      "id": "REQ-8",
+      "text": "Update the Contact page UI (frontend/src/pages/ContactPage.tsx) to support public submissions by removing the login-only UI path and ensuring the submit handler does not early-return when the user is unauthenticated.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "contact page is unlocked for all users, including those that aren't logged in"
+        ]
+      },
+      "acceptanceCriteria": [
+        "The Contact page no longer displays the \"Login Required\" card state for unauthenticated users.",
+        "The submit button is enabled/disabled only based on form validation and pending state (not on login state).",
+        "Submitting the form shows the existing success UI state and clears fields as it does today."
+      ]
+    },
+    {
+      "id": "REQ-9",
+      "text": "Modify the backend contact form endpoint (submitContactForm in backend/main.mo) to allow anonymous submissions while keeping the existing admin-only endpoint (getAllContactFormSubmissions) unchanged.",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "contact page is unlocked for all users, including those that aren't logged in"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Calling submitContactForm as an anonymous caller succeeds and stores a ContactFormSubmission record.",
+        "Calling getAllContactFormSubmissions as a non-admin still traps as unauthorized."
+      ]
+    },
+    {
+      "id": "REQ-10",
+      "text": "Add a legal document upload field (“submissions box”) to the Company Portal survey UI (frontend/src/pages/CompanyPortalPage.tsx) so company users can attach one or more legal documents for their internship submission.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "could you add a submissions box to the survey where they can upload the legal documents for their internship?"
+        ]
+      },
+      "acceptanceCriteria": [
+        "The company survey form includes a file upload control that allows selecting documents (e.g., PDF and common image formats).",
+        "Selected file(s) are clearly listed in the UI before submission (filename and size at minimum).",
+        "Submitting the survey sends the selected document data along with the rest of the survey payload."
+      ]
+    },
+    {
+      "id": "REQ-11",
+      "text": "Extend the backend CompanySubmission / CompanySubmissionInput types and the submitCompanySurvey endpoint (backend/main.mo) to accept and store the uploaded legal document(s) as part of a company submission.",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "add a submissions box to the survey where they can upload the legal documents"
+        ]
+      },
+      "acceptanceCriteria": [
+        "A company submission created via submitCompanySurvey persists the uploaded document metadata (filename, content type) and content bytes (or equivalent representation) in the stored CompanySubmission record.",
+        "Existing survey fields (companyName, contactPerson, email, internshipDetails, partnershipInterest, additionalComments) continue to work unchanged.",
+        "Admin retrieval via getAllCompanySubmissions returns the new document field(s) for each submission."
+      ]
+    },
+    {
+      "id": "REQ-12",
+      "text": "Update the admin company submissions review UI (frontend/src/pages/AdminCompanySubmissionsPage.tsx) to display any uploaded legal document(s) for each company submission and provide a usable way to download/view them in the browser.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "upload the legal documents for their internship"
+        ]
+      },
+      "acceptanceCriteria": [
+        "For submissions that include uploaded documents, the admin page shows each document’s filename (and content type if available).",
+        "Admins can click to download/view each uploaded document.",
+        "For submissions without uploaded documents, the admin page shows a clear \"No documents uploaded\" (or similar) state."
+      ]
+    }
+  ],
+  "constraints": [
+    "Respect single-actor backend architecture: all Motoko logic must remain in backend/main.mo; only add backend/migration.mo if truly needed for an upgrade with preserved state.",
+    "Do not edit files under frontend immutablePaths (including frontend/src/hooks/useInternetIdentity.ts(x), frontend/src/hooks/useActor.ts, frontend/src/main.tsx, and frontend/src/components/ui). Compose existing components instead."
+  ],
+  "nonGoals": [
+    "Add anti-spam, CAPTCHA, rate limiting, or email-delivery integrations for the public contact form.",
+    "Add a new admin UI to view contact form submissions (backend endpoint already exists but UI work is out of scope unless explicitly requested).",
+    "Change role/route guards for /company or /admin beyond what is required for the upload feature."
+  ],
+  "imageRequirements": {
+    "required": [],
+    "edits": []
+  }
+}

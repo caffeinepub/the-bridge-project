@@ -1,0 +1,88 @@
+{
+  "kind": "feature_evidence_report",
+  "features": [
+    {
+      "featureId": "feature-remove-authentication-gating-from-the-contact-page-so-that-unauthenticated-visitors-student-accounts-and-company-accounts-can-all-submit-the-contact-form-at-contact-without-logging-in",
+      "featureTitle": "Remove authentication gating from the Contact page so that unauthenticated visitors, student accounts, and company accounts can all submit the contact form at /contact without logging in.",
+      "files": [
+        "frontend/src/hooks/useQueries.ts",
+        "frontend/src/pages/ContactPage.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "blob-storage@4.0.0"
+      ],
+      "testIds": [
+        "REQ-7"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-update-the-contact-page-ui-frontend-src-pages-contactpage-tsx-to-support-public-submissions-by-removing-the-login-only-ui-path-and-ensuring-the-submit-handler-does-not-early-return-when-the-user-is-unauthenticated",
+      "featureTitle": "Update the Contact page UI (frontend/src/pages/ContactPage.tsx) to support public submissions by removing the login-only UI path and ensuring the submit handler does not early-return when the user is unauthenticated.",
+      "files": [
+        "frontend/src/pages/ContactPage.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "blob-storage@4.0.0"
+      ],
+      "testIds": [
+        "REQ-8"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-a-legal-document-upload-field-submissions-box-to-the-company-portal-survey-ui-frontend-src-pages-companyportalpage-tsx-so-company-users-can-attach-one-or-more-legal-documents-for-their-internship-submission",
+      "featureTitle": "Add a legal document upload field (“submissions box”) to the Company Portal survey UI (frontend/src/pages/CompanyPortalPage.tsx) so company users can attach one or more legal documents for their internship submission.",
+      "files": [
+        "frontend/src/hooks/useQueries.ts",
+        "frontend/src/pages/CompanyPortalPage.tsx",
+        "frontend/src/utils/fileToExternalBlob.ts"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "blob-storage@4.0.0"
+      ],
+      "testIds": [
+        "REQ-10"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-update-the-admin-company-submissions-review-ui-frontend-src-pages-admincompanysubmissionspage-tsx-to-display-any-uploaded-legal-document-s-for-each-company-submission-and-provide-a-usable-way-to-download-view-them-in-the-browser",
+      "featureTitle": "Update the admin company submissions review UI (frontend/src/pages/AdminCompanySubmissionsPage.tsx) to display any uploaded legal document(s) for each company submission and provide a usable way to download/view them in the browser.",
+      "files": [
+        "frontend/src/pages/AdminCompanySubmissionsPage.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "blob-storage@4.0.0"
+      ],
+      "testIds": [
+        "REQ-12"
+      ],
+      "confidence": "high"
+    }
+  ]
+}

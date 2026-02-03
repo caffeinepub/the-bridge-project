@@ -1,0 +1,338 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectStateVersion": 3,
+  "summary": "A full-stack Internet Computer (ICP) web application for “The Bridge Project” that connects Grayson Tech students with internship opportunities. The React SPA supports Internet Identity authentication, user profile onboarding (student vs company), authenticated internship browsing (with a public, privacy-preserving category-count view for visitors), an admin portal for managing internship listings (CRUD) and reviewing company partnership survey submissions, plus an authenticated contact form submission flow. The backend is a Motoko canister implementing role-based access control (RBAC) bootstrapped via an environment-provided admin token and a user-provided secret.",
+  "existing_features": [
+    {
+      "id": "IF-1",
+      "title": "Internet Identity authentication provider (login/logout + persisted identity)",
+      "synonyms": [
+        "InternetIdentityProvider",
+        "useInternetIdentity",
+        "AuthClient context"
+      ],
+      "description": "Provides a React context around @dfinity/auth-client that initializes an AuthClient, restores a saved identity on mount, supports Internet Identity login with a long-lived delegation TTL, and supports logout/clear with status flags and error handling.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-2",
+      "title": "Backend actor creation (anonymous vs identity-bound) with access-control initialization",
+      "synonyms": [
+        "useActor",
+        "createActorWithConfig",
+        "_initializeAccessControlWithSecret"
+      ],
+      "description": "Creates an anonymous canister actor for visitors and an identity-bound actor for authenticated users. When authenticated, calls _initializeAccessControlWithSecret with a secret (caffeineAdminToken) read from URL hash/session to register the principal and optionally bootstrap admin role.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-3",
+      "title": "Role-based access control (admin/user/guest) with admin-token bootstrap",
+      "synonyms": [
+        "AccessControl",
+        "MixinAuthorization",
+        "getCallerUserRole",
+        "assignCallerUserRole",
+        "isCallerAdmin"
+      ],
+      "description": "Implements canister-side RBAC with #admin/#user/#guest roles. Principals are registered via initialize; the first admin can be assigned by presenting a token that matches the canister env var CAFFEINE_ADMIN_TOKEN. Includes role queries and admin-only role assignment.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-4",
+      "title": "User profile storage and required onboarding modal",
+      "synonyms": [
+        "getCallerUserProfile",
+        "saveCallerUserProfile",
+        "ProfileSetupModal"
+      ],
+      "description": "Stores a per-principal UserProfile (name, email, accountType: student/company). Frontend forces authenticated users without a profile to complete a modal form; includes validation such as optional school-email enforcement for students (@g.gcksp12.org when selected). Backend validates basic email format by account type.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-5",
+      "title": "Authenticated internship browsing with category filtering and deep linking",
+      "synonyms": [
+        "PublicPage",
+        "category tabs",
+        "/internships?category="
+      ],
+      "description": "Authenticated users can browse internships and filter by category. Category selection supports deep linking via TanStack Router search params. Internship cards include company, location, description, and external application links.",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "version": 1
+    },
+    {
+      "id": "IF-6",
+      "title": "Unauthenticated internship browsing experience (category counts only + login CTA)",
+      "synonyms": [
+        "getCategoryCounts",
+        "PublicPage gated view",
+        "access-gated message"
+      ],
+      "description": "Unauthenticated visitors see category tabs and only aggregated internship counts per category (no internship details), plus a clear CTA prompting Internet Identity login/sign-up to view full listings.",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "version": 1
+    },
+    {
+      "id": "IF-7",
+      "title": "Internship data model and secured listing APIs",
+      "synonyms": [
+        "Internship",
+        "getInternships",
+        "getInternshipsByCategory",
+        "getInternship"
+      ],
+      "description": "Motoko canister stores internship records keyed by Nat IDs with a monotonic nextInternshipId counter. Query endpoints for listing and filtering internships require authenticated #user permission (server-side enforcement).",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-8",
+      "title": "Public category counts API (no authentication required)",
+      "synonyms": [
+        "CategoryCount",
+        "getCategoryCounts"
+      ],
+      "description": "Backend exposes a public query that aggregates internships by category and returns only {category, count}, allowing a privacy-preserving public view without exposing internship details or application links.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-9",
+      "title": "Admin internship management (create, edit, delete) with secured endpoints and UI",
+      "synonyms": [
+        "AdminDashboard",
+        "InternshipFormDialog",
+        "addInternship",
+        "updateInternship",
+        "deleteInternship"
+      ],
+      "description": "Admin-only canister endpoints add/update/delete internships. Frontend admin dashboard provides list UI, add/edit modal dialog with validation, delete confirmation, and React Query cache invalidation with toast feedback.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-10",
+      "title": "Admin portal entry and access status page",
+      "synonyms": [
+        "AdminLoginPage",
+        "Header Admin button"
+      ],
+      "description": "Provides an admin login portal page that handles Internet Identity sign-in and displays explicit states for unauthenticated users, verifying access, access granted, and access denied. Header always shows an Admin button that routes to the correct admin entry page depending on auth/admin status.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-11",
+      "title": "Route-level guards for authenticated, admin-only, and company-only pages",
+      "synonyms": [
+        "RouteGuard",
+        "protected routes"
+      ],
+      "description": "Implements a RouteGuard component used by TanStack Router routes to require authentication and optionally enforce admin-only or company-account access. Shows loading states, redirects unauthenticated users to home, and renders access-denied UI for unauthorized users.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-12",
+      "title": "Company Portal partnership survey submission (company accounts only)",
+      "synonyms": [
+        "CompanyPortalPage",
+        "submitCompanySurvey",
+        "CompanySubmissionInput"
+      ],
+      "description": "Implements a multi-section company survey form on the frontend with validation and conditional fields; maps the detailed answers into the backend submission format. Backend requires the caller to be an authenticated user with a saved company-type profile before storing submissions.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-13",
+      "title": "Admin review of company survey submissions",
+      "synonyms": [
+        "AdminCompanySubmissionsPage",
+        "getAllCompanySubmissions"
+      ],
+      "description": "Backend stores CompanySubmission records and exposes an admin-only query to retrieve all submissions. Frontend provides an admin-only page with loading/error/empty states and detailed submission cards including partnership interest and contact info.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-14",
+      "title": "Authenticated contact form submission flow (login required)",
+      "synonyms": [
+        "ContactPage",
+        "submitContactForm"
+      ],
+      "description": "Contact page includes direct email (mailto) and an in-app contact form. The in-app form is gated behind Internet Identity authentication; unauthenticated visitors see a login prompt, and authenticated users can submit messages with success feedback and toasts.",
+      "reqIds": [
+        "REQ-6"
+      ],
+      "version": 1
+    },
+    {
+      "id": "IF-15",
+      "title": "Admin-only retrieval API for contact form submissions (backend)",
+      "synonyms": [
+        "getAllContactFormSubmissions"
+      ],
+      "description": "Backend stores contact form submissions keyed by a monotonic ID and provides an admin-only query endpoint to retrieve all submissions for review/auditing (no corresponding frontend UI is implemented).",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-16",
+      "title": "Admin-email allowlist and deferred promotion workflow",
+      "synonyms": [
+        "pendingAdminPromotions",
+        "promoteAdminUsers"
+      ],
+      "description": "Backend checks saved user profile emails against an allowlist and records pending promotions. Existing admins can call promoteAdminUsers to assign admin role to eligible pending users. Frontend exposes this as an admin dashboard quick action with toast feedback.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-17",
+      "title": "Partner internship seed dataset and idempotent seeding tool",
+      "synonyms": [
+        "partnerInternships",
+        "seedPartnerInternships",
+        "safeExternalLink"
+      ],
+      "description": "Frontend includes a curated dataset of partner internships and an admin action to seed them into the canister. Seeding is idempotent via duplicate detection (title/company/location/category), normalizes application links, and reports added/skipped/failed counts.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-18",
+      "title": "Home/About marketing pages and category navigation",
+      "synonyms": [
+        "HomePage",
+        "AboutPage",
+        "category cards"
+      ],
+      "description": "Home page displays a grid of predefined categories with icons, expandable descriptions, and navigation into the internships page filtered by category. About page provides static content describing mission and supported programs.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-19",
+      "title": "Application shell, theming, and global notifications",
+      "synonyms": [
+        "Layout",
+        "Header/Footer",
+        "Tailwind/shadcn-ui",
+        "next-themes",
+        "sonner"
+      ],
+      "description": "Provides shared layout with sticky navigation and footer, CSS-variable-based theming with light/dark/system mode, and global toast notifications for query/mutation outcomes.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-20",
+      "title": "URL hash secret parsing with session persistence",
+      "synonyms": [
+        "urlParams",
+        "getSecretParameter",
+        "getSecretFromHash"
+      ],
+      "description": "Utilities parse secrets from the URL hash fragment, persist them in sessionStorage for the session, and clear the secret from the hash to reduce exposure; used for the caffeineAdminToken bootstrap flow.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "feature-remove-authentication-gating-from-the-contact-page-so-that-unauthenticated-visitors-student-accounts-and-company-accounts-can-all-submit-the-contact-form-at-contact-without-logging-in",
+      "title": "Remove authentication gating from the Contact page so that unauthenticated visitors, student accounts, and company accounts can all submit the contact form at /contact without logging in.",
+      "reqIds": [
+        "REQ-7"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-contact-page-ui-frontend-src-pages-contactpage-tsx-to-support-public-submissions-by-removing-the-login-only-ui-path-and-ensuring-the-submit-handler-does-not-early-return-when-the-user-is-unauthenticated",
+      "title": "Update the Contact page UI (frontend/src/pages/ContactPage.tsx) to support public submissions by removing the login-only UI path and ensuring the submit handler does not early-return when the user is unauthenticated.",
+      "reqIds": [
+        "REQ-8"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-legal-document-upload-field-submissions-box-to-the-company-portal-survey-ui-frontend-src-pages-companyportalpage-tsx-so-company-users-can-attach-one-or-more-legal-documents-for-their-internship-submission",
+      "title": "Add a legal document upload field (“submissions box”) to the Company Portal survey UI (frontend/src/pages/CompanyPortalPage.tsx) so company users can attach one or more legal documents for their internship submission.",
+      "reqIds": [
+        "REQ-10"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-admin-company-submissions-review-ui-frontend-src-pages-admincompanysubmissionspage-tsx-to-display-any-uploaded-legal-document-s-for-each-company-submission-and-provide-a-usable-way-to-download-view-them-in-the-browser",
+      "title": "Update the admin company submissions review UI (frontend/src/pages/AdminCompanySubmissionsPage.tsx) to display any uploaded legal document(s) for each company submission and provide a usable way to download/view them in the browser.",
+      "reqIds": [
+        "REQ-12"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Unlock Contact page for all users (including unauthenticated visitors) instead of requiring login",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Add legal document upload field ('submissions box') to Company survey so companies can attach internship documents",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-5",
+      "summary": "Modify the backend contact form endpoint (submitContactForm in backend/main.mo) to allow anonymous submissions while keeping the existing admin-only endpoint (getAllContactFormSubmissions) unchanged.",
+      "reqIds": [
+        "REQ-9"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-7",
+      "summary": "Extend the backend CompanySubmission / CompanySubmissionInput types and the submitCompanySurvey endpoint (backend/main.mo) to accept and store the uploaded legal document(s) as part of a company submission.",
+      "reqIds": [
+        "REQ-11"
+      ],
+      "status": "pending"
+    }
+  ],
+  "architectural_notes": [
+    "Frontend is a React SPA using TanStack Router for routing and @tanstack/react-query for all canister calls (query/mutation separation, cache invalidation, and refetch on actor/identity changes).",
+    "Authentication uses Internet Identity via @dfinity/auth-client; the identity is restored on app load if previously authenticated, and login uses a long-lived delegation TTL (~30 days).",
+    "Backend integration is done through an actor abstraction created by createActorWithConfig; the actor is recreated when identity changes and dependent queries are invalidated/refetched.",
+    "Backend is a Motoko canister with RBAC implemented in an AccessControl module, exposed via a MixinAuthorization mixin; permissions are enforced server-side on all sensitive endpoints.",
+    "Canister state is held in in-memory Maps (Principal->profile/role; Nat->internships/submissions/contact submissions) with monotonic counters for IDs.",
+    "UI uses Tailwind + shadcn-ui primitives, next-themes for dark/light/system themes, and sonner for toast notifications.",
+    "Sensitive bootstrap secret (caffeineAdminToken) is read from the URL hash and persisted in sessionStorage; utilities also clear the secret from the hash to reduce leakage."
+  ],
+  "known_issues": [
+    "Backend uses placeholder timestamps: ContactFormSubmission.submittedAt and CompanySubmission.submittedAt are always set to 0 (no real time source used).",
+    "Authenticated actor initialization traps if the canister environment variable CAFFEINE_ADMIN_TOKEN is not set (MixinAuthorization._initializeAccessControlWithSecret).",
+    "AccessControl.getUserRole traps for any non-anonymous principal that has not been registered via initialize(), making initialization ordering critical.",
+    "Frontend can call getCallerUserProfile via useGetCallerUserProfile even when using an anonymous actor (because the query is enabled whenever an actor exists), which will trap as unauthorized and can produce noisy query errors for unauthenticated visitors.",
+    "pendingAdminPromotions entries are not cleared after successful promotion; promoteAdminUsers can rescan the same principals and the map may grow over time.",
+    "safeExternalLink primarily normalizes empty values and missing protocols but does not explicitly block dangerous schemes (e.g., it could return a trimmed \"javascript:...\" link unchanged).",
+    "There is no frontend admin UI to view stored contact form submissions even though the backend exposes an admin-only getAllContactFormSubmissions endpoint."
+  ],
+  "isFixRequest": false,
+  "generatedImages": [],
+  "gameProjectType": "none",
+  "projectName": "The Bridge Project",
+  "clarification_mode": "instant",
+  "clarification_rounds": 0
+}

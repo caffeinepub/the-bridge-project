@@ -1,0 +1,100 @@
+{
+  "kind": "spec_vs_diff_report",
+  "version": "1.0",
+  "generatedAt": "2026-02-03T21:51:43.143Z",
+  "summary": "Diff implements public Contact page UI and adds frontend support for uploading legal documents in the Company Portal, plus introduces backend type changes and a migration for company submissions. However, the diff summary does not provide direct evidence that the backend endpoints (submitContactForm, submitCompanySurvey, and admin retrieval behavior) were updated as required, and it includes several additional frontend features/routes not requested in the BuildRequest.",
+  "missing_requirements": [
+    {
+      "id": "REQ-9",
+      "requirement": "Modify the backend contact form endpoint (submitContactForm in backend/main.mo) to allow anonymous submissions while keeping the existing admin-only endpoint (getAllContactFormSubmissions) unchanged.",
+      "reason": "The backend/main.mo snippet shown includes ContactForm types and other functions, but the diff summary does not show the submitContactForm implementation or any removal of an authorization trap for anonymous callers, nor does it show getAllContactFormSubmissions remaining admin-only.",
+      "evidence": [
+        "backend/main.mo (truncated; submitContactForm/getAllContactFormSubmissions not shown)"
+      ]
+    },
+    {
+      "id": "REQ-11",
+      "requirement": "Extend the backend CompanySubmission / CompanySubmissionInput types and the submitCompanySurvey endpoint (backend/main.mo) to accept and store the uploaded legal document(s) as part of a company submission.",
+      "reason": "While CompanySubmission and CompanySubmissionInput were extended with legalDocuments in backend/main.mo, the diff summary does not show the submitCompanySurvey implementation persisting document metadata/content, nor does it show getAllCompanySubmissions returning the new field.",
+      "evidence": [
+        "backend/main.mo (truncated; submitCompanySurvey/getAllCompanySubmissions not shown)"
+      ]
+    }
+  ],
+  "hallucinated_features": [
+    {
+      "description": "Added a new backend migration module and wired migration into the actor upgrade flow.",
+      "reason": "BuildRequest allowed adding backend/migration.mo only if truly needed, but did not explicitly request a migration implementation; this is additional implementation beyond explicit requirements (even if arguably necessary).",
+      "evidence": [
+        "backend/migration.mo",
+        "backend/main.mo (with migration = Migration.run)"
+      ]
+    },
+    {
+      "description": "Introduced a new Admin login portal route (/admin-login) and updated router setup accordingly.",
+      "reason": "BuildRequest explicitly stated that adding new admin UI work is out of scope unless explicitly requested; new admin-login route/page is not requested by REQ-7..REQ-12.",
+      "evidence": [
+        "frontend-file-summaries.txt (frontend/src/App.tsx: new /admin-login route)",
+        "frontend-file-summaries.txt (frontend/src/pages/AdminLoginPage.tsx)"
+      ]
+    },
+    {
+      "description": "Added a new RouteGuard component enforcing admin-only and company-only access with redirects/messages.",
+      "reason": "Not requested; BuildRequest non-goal says not to change role/route guards beyond what is required for upload feature.",
+      "evidence": [
+        "frontend-file-summaries.txt (frontend/src/components/RouteGuard.tsx)",
+        "frontend-file-summaries.txt (frontend/src/App.tsx: RouteGuard protection)"
+      ]
+    },
+    {
+      "description": "Header navigation changes including an always-visible Admin button and conditional Company Portal link changes.",
+      "reason": "Not requested by REQ-7..REQ-12.",
+      "evidence": [
+        "frontend-file-summaries.txt (frontend/src/components/Header.tsx)"
+      ]
+    },
+    {
+      "description": "Footer changes adding caffeine.ai branding.",
+      "reason": "Not requested by BuildRequest.",
+      "evidence": [
+        "frontend-file-summaries.txt (frontend/src/components/Footer.tsx)"
+      ]
+    },
+    {
+      "description": "Expanded ProfileSetupModal requirements/validation (account type selection + email validation rules).",
+      "reason": "Not requested by REQ-7..REQ-12.",
+      "evidence": [
+        "frontend-file-summaries.txt (frontend/src/components/ProfileSetupModal.tsx)"
+      ]
+    },
+    {
+      "description": "Major UI/feature additions unrelated to contact-public + legal upload: new/updated AdminDashboard quick actions (partner internship seeding, admin promotion), extensive seed data, and broad styling/theme changes.",
+      "reason": "Not requested in BuildRequest.",
+      "evidence": [
+        "frontend-file-summaries.txt (frontend/src/pages/AdminDashboard.tsx)",
+        "frontend-file-summaries.txt (frontend/src/data/seedPartnerInternships.ts)",
+        "frontend-file-summaries.txt (frontend/src/index.css)"
+      ]
+    },
+    {
+      "description": "TypeScript backend definition updates to include expanded CompanySubmissionInput/CompanySubmission fields for all survey sections A–E (beyond legal documents).",
+      "reason": "REQ-10/11 only request adding legal document upload support; expanding types to a much larger survey schema is beyond what was asked.",
+      "evidence": [
+        "frontend-file-summaries.txt (frontend/src/backend.d.ts)",
+        "frontend-file-summaries.txt (frontend/src/pages/CompanyPortalPage.tsx: complete five-section survey form)"
+      ]
+    }
+  ],
+  "confidence": 0.62,
+  "changed_files": [
+    "backend/main.mo",
+    "backend/migration.mo",
+    "frontend-file-summaries.txt",
+    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/pages/AdminCompanySubmissionsPage.tsx",
+    "frontend/src/pages/CompanyPortalPage.tsx",
+    "frontend/src/pages/ContactPage.tsx",
+    "frontend/src/utils/fileToExternalBlob.ts",
+    "project_state.json"
+  ]
+}

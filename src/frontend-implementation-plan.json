@@ -1,0 +1,86 @@
+{
+  "kind": "implementation_plan",
+  "version": "1.0",
+  "title": "Public Contact form + legal document upload/viewing for company survey submissions (frontend)",
+  "requirements": [
+    {
+      "id": "REQ-7",
+      "summary": "Ensure the /contact page is usable for all visitors (including unauthenticated) by removing frontend auth gating for contact submissions.",
+      "acceptanceCriteria": [
+        "When not logged in, visiting /contact shows the contact form (no login-required prompt) and the user can submit successfully.",
+        "When logged in as a student or company account, the same /contact form is available and submits successfully.",
+        "Backend no longer traps with \"Unauthorized: Please log in to submit a contact form\" for anonymous callers submitting contact forms."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/ContactPage.tsx",
+          "operation": "modify",
+          "description": "Remove the unauthenticated 'Login Required' UI branch and allow rendering the same contact form for all visitors; update submit handler to not early-return based on authentication state."
+        },
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Review and adjust the contact form mutation usage assumptions to ensure it can be called from an unauthenticated UI flow (no identity-dependent gating on the client side)."
+        }
+      ]
+    },
+    {
+      "id": "REQ-8",
+      "summary": "Update ContactPage.tsx to remove login-only UI path and ensure the submit handler works when unauthenticated.",
+      "acceptanceCriteria": [
+        "The Contact page no longer displays the \"Login Required\" card state for unauthenticated users.",
+        "The submit button is enabled/disabled only based on form validation and pending state (not on login state).",
+        "Submitting the form shows the existing success UI state and clears fields as it does today."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/ContactPage.tsx",
+          "operation": "modify",
+          "description": "Delete the login prompt card state, remove the login handler/button for the form flow, and ensure the form is always available; keep existing success state and field reset behavior after successful submission."
+        }
+      ]
+    },
+    {
+      "id": "REQ-10",
+      "summary": "Add a legal document upload control to the Company Portal survey and include selected documents in the survey submission payload.",
+      "acceptanceCriteria": [
+        "The company survey form includes a file upload control that allows selecting documents (e.g., PDF and common image formats).",
+        "Selected file(s) are clearly listed in the UI before submission (filename and size at minimum).",
+        "Submitting the survey sends the selected document data along with the rest of the survey payload."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/utils/fileToExternalBlob.ts",
+          "operation": "create",
+          "description": "Add a small utility to convert browser File objects into blob-storage ExternalBlob instances (bytes-based) suitable for inclusion in the company survey payload. Use the blob-storage component capability (ExternalBlob.fromBytes / withUploadProgress). Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/CompanyPortalPage.tsx",
+          "operation": "modify",
+          "description": "Add a 'Legal document submissions' upload field allowing one-or-more files; display a list of selected files (at least filename + size) with a clear remove action; on submit, convert selected File(s) to ExternalBlob (blob-storage) and pass them in the legalDocuments field of the submitCompanySurvey payload. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Ensure the company survey mutation can accept and forward the legalDocuments array as part of CompanySubmissionInput without client-side stripping; keep existing success/error toasts and invalidation behavior."
+        }
+      ]
+    },
+    {
+      "id": "REQ-12",
+      "summary": "Update admin company submissions review UI to show uploaded legal documents and provide download/view actions.",
+      "acceptanceCriteria": [
+        "For submissions that include uploaded documents, the admin page shows each document’s filename (and content type if available).",
+        "Admins can click to download/view each uploaded document.",
+        "For submissions without uploaded documents, the admin page shows a clear \"No documents uploaded\" (or similar) state."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/AdminCompanySubmissionsPage.tsx",
+          "operation": "modify",
+          "description": "Render a 'Legal Documents' section per submission: if legalDocuments is empty, show a clear empty state; otherwise list each document and provide a view/download action using blob-storage ExternalBlob direct URL access (getDirectURL). Where filename/content type metadata is available from the returned submission shape, display it; otherwise show a sensible fallback label."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "frontend/src/App.tsx": "Main application component with router setup including new /admin-login portal route and /admin/company-submissions route with RouteGuard protection for admin-only access.",
+  "frontend/src/hooks/useQueries.ts": "React Query hooks for all backend operations with authentication-aware internship queries, public category counts, and updated contact form mutation that no longer requires authentication.",
+  "frontend/src/components/Header.tsx": "Navigation header with always-visible Admin button (placed immediately after Home) that routes to /admin-login or /admin based on authentication and admin status, plus conditional Company Portal link for authenticated company accounts.",
+  "frontend/src/components/Footer.tsx": "Footer component displaying copyright and attribution with caffeine.ai branding.",
+  "frontend/src/components/ProfileSetupModal.tsx": "Enhanced profile setup modal requiring name, account type selection (Student/Company), and email with validation for student school emails (@g.gcksp12.org) and personal emails.",
+  "frontend/src/pages/PublicPage.tsx": "Public internships page that shows category tabs with counts and login CTA for unauthenticated users, and full internship cards with application links for authenticated users.",
+  "frontend/src/pages/AdminDashboard.tsx": "Admin dashboard with internship management and quick actions including company survey review, admin promotion, and partner internship seeding functionality.",
+  "frontend/src/components/InternshipFormDialog.tsx": "Reusable dialog form component for creating and editing internship listings with full validation.",
+  "frontend/src/index.css": "Global styles with OKLCH color system featuring a purple-blue primary color scheme for both light and dark modes.",
+  "frontend/src/pages/HomePage.tsx": "Landing page with expandable category cards showing full program descriptions and separate buttons for viewing more info or browsing internships by category.",
+  "frontend/src/pages/AboutPage.tsx": "About page displaying The Bridge Project's mission, connection to Grayson Tech students, community partnerships, and the 12 technical programs served.",
+  "frontend/src/pages/ContactPage.tsx": "Contact page with a public contact form accessible to all users (authenticated and unauthenticated) that submits messages to the backend without requiring login.",
+  "frontend/src/backend.d.ts": "Updated TypeScript interface definitions for backend with expanded CompanySubmissionInput and CompanySubmission types to include all survey fields from Sections A-E (business info, awareness, interest, help types, feedback, follow-up).",
+  "frontend/src/components/RouteGuard.tsx": "New route guard component enforcing admin-only and company-only access with English access-denied messages and automatic redirects for unauthorized users.",
+  "frontend/src/pages/CompanyPortalPage.tsx": "Complete company partnership survey form with all five sections (A-E) plus a legal document upload section that allows companies to attach multiple files (PDF, DOC, images) to their survey submissions.",
+  "frontend/src/pages/AdminLoginPage.tsx": "Admin login portal page with enhanced status messaging that clearly distinguishes between unauthenticated users, authenticated non-admin users (with explicit \"signed in but no privileges\" message), and authenticated admin users with navigation to dashboard.",
+  "frontend/src/pages/AdminCompanySubmissionsPage.tsx": "Admin-only page displaying all company survey submissions with detailed information including contact details, internship details, partnership interest status, additional comments, and uploaded legal documents with view/download functionality.",
+  "frontend/src/data/seedPartnerInternships.ts": "Comprehensive dataset of partner internships organized by category with company names, locations, and descriptions noting 1-2 openings per position.",
+  "frontend/src/utils/safeExternalLink.ts": "Utility function to normalize and validate external links ensuring proper protocol and safe fallback values.",
+  "frontend/src/utils/fileToExternalBlob.ts": "Utility functions for converting browser File objects to ExternalBlob instances for blob-storage, including upload progress tracking and file size formatting helpers."
+}
